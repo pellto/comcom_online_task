@@ -10,15 +10,14 @@ RUN apk add --update build-base python3-dev py-pip
 
 # 환경변수
 ENV LIBRARY_PATH=/lib:/usr/lib
-
-# 호스트와 연결할 포트 ( 이렇게 빌드하는 이유는 추후 jwilder/nginx-proxy 를 위해서 입니다 )
 EXPOSE 5000
 
 # 기본 디렉토리
 WORKDIR /var/usr/comcom
-COPY . /var/usr/comcom/
+COPY ./*.py /var/usr/comcom/
+COPY ./templates/* /var/usr/comcom/templates/
 
-# flask 설치
+# flask, requests 설치
 RUN pip install flask
 RUN pip install requests
 
