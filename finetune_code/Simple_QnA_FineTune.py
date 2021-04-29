@@ -14,7 +14,6 @@ class ConversationDataset(Dataset):
         self.conversation_data = []
         self.end_of_text_token = "</s>"
         unknown_token = tokenizer.unk_token_id
-        start_token = tokenizer.encode(tokenizer.bos_token)
 
         header = 0
         with open(data_path, encoding='utf-8') as csv_file:
@@ -26,15 +25,11 @@ class ConversationDataset(Dataset):
                     continue
                 _type = ["일상", "부정", "긍정"][int(row[2])]
 
-                Q = tokenizer.encode(f"{_type}: {row[0]}{self.end_of_text_token}")
-                A = tokenizer.encode(f"{row[1]}{self.end_of_text_token}")
-                for i in range(len(Q)):
-                    if Q[i] > tokenizer.vocab_size:
-                        Q[i] = unknown_token
-                for i in range(len(A)):
-                    if A[i] > tokenizer.vocab_size:
-                        A[i] = unknown_token
-                temp_conversation = Q + start_token + A
+                temp_conversation = tokenizer.encode(f"{row[0]} {row[1]} {self.end_of_text_token}")
+                for i in range(len(temp_conversation)):
+                    if temp_conversation[i] > tokenizer.vocab_size:
+                        temp_conversation[i] = unknown_token
+
                 if len(temp_conversation) > max_length:
                     temp_conversation = temp_conversation[:max_length]
                 else:

@@ -6,20 +6,10 @@ import requests as module_request
 app = Flask(__name__, static_url_path='/static')
 POST_URL = f"http://{os.environ['API_PORT_5001_TCP_ADDR']}:5001"
 
-previous_bot = []
+MULTI_TURN = []
 USER = []
 BOT = []
 
-
-def response_parser(response, user_index=0):
-    start = response.index("<s>") + 4
-    end = response[start:].index("</s>") + start
-    return response[start:end]
-
-def chatbot_parser(response, user_index=0):
-    start = response.index("</s>") + 5
-    end = response[start:].index("<s>") + start
-    return response[start:end]
 
 @app.route('/')
 def main_get(input_text=None):
@@ -45,11 +35,13 @@ def KoGPT2_demo(input_text=None):
 def QnAService(question=None):
     if request.method == 'GET':
         question = request.args.get('question')
+        print(question)
         params = {'input_text': question}
         res = module_request.post(url=POST_URL + "/QnA", json=params)
+        print(res.json())
         status_code = res.status_code
         if status_code == 200:
-            res = response_parser(res.json())
+            res = res.json()[len(question):]
         else:
             return render_template('QnAService.html', question=question, result="")
         return render_template('QnAService.html', question=question, result=res)
@@ -59,25 +51,28 @@ def QnAService(question=None):
 def QnAChatbot(user_input=None):
     if request.method == 'GET':
         user_input = request.args.get('user_input')
-        _input = f"{previous_bot[0]} {user_input}" if len(previous_bot) >= 1 else f"{user_input}"
+        _input = ""
+        if len(MULTI_TURN) >= 1:
+            _input = " ".join(MULTI_TURN)
+        _input = _input + f" {user_input}</s>"
+        input_length = len(_input) - 4
         print(_input)
+
+        MULTI_TURN.append(_input[:-4])
         USER.append(user_input)
         params = {'input_text': _input, 'early_stop': False}
         res = module_request.post(url=POST_URL+"/Chatbot", json=params)
         print(res.json())
         status_code = res.status_code
         if status_code == 200:
-            try:
-                res = chatbot_parser(res.json())
-            except:
-                res = response_parser(res.json())
+            res = res.json()[input_length:]
             BOT.append(res)
         else:
             return render_template('QnAChatbot.html', history_length=0, user=[], bot=[], current_input='')
 
-        if len(previous_bot) > 0:
-            previous_bot.pop()
-        previous_bot.append(res)
+        MULTI_TURN.append(res)
+        if len(MULTI_TURN) >= 5:
+            MULTI_TURN.pop()
 
         return render_template('QnAChatbot.html', history_length=len(USER), user=USER, bot=BOT, current_input=user_input)
 

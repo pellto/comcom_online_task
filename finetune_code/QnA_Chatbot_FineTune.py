@@ -8,78 +8,95 @@ from transformers import GPT2LMHeadModel, PreTrainedTokenizerFast
 from transformers import AdamW, get_linear_schedule_with_warmup
 
 
-class ServiceConversationDataset(Dataset):
-    def __init__(self, data_path, tokenizer, max_length):
-        self.conversation_data = []
-        unknown_token = tokenizer.unk_token_id
-        with open(data_path, 'rt', encoding='utf-8') as f:
-            data = f.read().split("\n")
-            for line in data:
-                line = tokenizer.encode("<s>" + line.replace("`", "<s></s>") + "</s>")
-                if len(line) > max_length:
-                    line = line[:max_length]
-                else:
-                    line = line + [tokenizer.pad_token_id] * (100 - len(line))
-
-                for i, token in enumerate(line):
-                    if token >= tokenizer.vocab_size:
-                        line[i] = unknown_token
-                line = torch.tensor([line])
-                self.conversation_data.append(line)
-
-    def __len__(self):
-        return len(self.conversation_data)
-
-    def __getitem__(self, idx):
-        return self.conversation_data[idx]
-
-
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def fine_tuning(MODEL_TYPE, DATA_PATH, MAX_SEQ_LEN, BATCH_SIZE,
+class ChatBotDataset(Dataset):
+    def __init__(self, data_path, tokenizer):
+        self.conversation = {}
+        with open(data_path, 'rt', encoding='utf-8') as f:
+            data = f.read().split("\n")[:-1]
+            for i in range(0, len(data), 2):
+                temp_conversation = tokenizer(data[i]+data[i+1])
+                for key in temp_conversation:
+                    if key not in self.conversation:
+                        self.conversation[key] = []
+                    self.conversation[key].append(temp_conversation[key])
+
+    def __len__(self):
+        return len(self.conversation['input_ids'])
+
+    def __getitem__(self, idx):
+        return {key: torch.tensor(val[idx]) for key, val in self.conversation.items()}
+
+
+def batch_padder(batch):
+    max_length = -1
+    pad_token_id = 3
+    train_ids, attention_mask = [], []
+    for data in batch:
+        max_length = max(max_length, len(data['input_ids']))
+
+    for i in range(len(batch)):
+        train_ids.append(torch.cat([batch[i]["input_ids"],
+                                           torch.LongTensor([pad_token_id] * (max_length - len(batch[i]["input_ids"])))]))
+        attention_mask.append(torch.cat([batch[i]["attention_mask"],
+                                           torch.LongTensor([0] * (max_length - len(batch[i]["attention_mask"])))]))
+    return torch.stack(train_ids, 0), torch.stack(attention_mask, 0)
+
+
+def get_data_loader(data_path, tokenizer, batch_size=4, shuffle=True):
+    dataset = ChatBotDataset(data_path, tokenizer)
+    dataloader = DataLoader(dataset, batch_size=batch_size,
+                            collate_fn=batch_padder, shuffle=shuffle)
+    return dataloader
+
+
+def fine_tuning_runner(model, optim, data_loader, scheduler, epochs, save_path):
+    model = model.to(DEVICE)
+    model.train()
+    print("=" * 15, "TRAIN MODEL", "=" * 15)
+    for epoch in range(epochs):
+        print(f'EPOCH : {epoch}, started' + "=" * 30)
+        total_loss = 0.0
+        total_count = 0
+        with tqdm(data_loader, desc="Train Epoch #{}".format(epoch)) as t:
+            for train_ids, attention_masks in t:
+                train_ids, attention_masks = train_ids.to(DEVICE), attention_masks.to(DEVICE)
+                outputs = model(train_ids, attention_mask=attention_masks, labels=train_ids)
+                loss = outputs[0]
+
+                total_loss += loss.detach().data
+                total_count += 1
+                t.set_postfix(loss='{:.6f}'.format(total_loss / total_count))
+                optim.zero_grad()
+                scheduler.optimizer.zero_grad()
+                loss.backward()
+                optim.step()
+                scheduler.step()
+
+                if total_count % (len(data_loader) // 4) == 1:
+                    torch.save(model.state_dict(), os.path.join(save_path,
+                                                                f"Chatbot_KoDialog_{epoch}_{total_count}.pt"))
+            torch.save(model.state_dict(), os.path.join(save_path, f"Chatbot_KoDialog_{epoch}.pt"))
+
+
+def fine_tuning(MODEL_TYPE, DATA_PATH, BATCH_SIZE,
                 LEARNING_RATE, WARMUP_STEPS, OUTPUT_MODEL_PATH, EPOCHS):
     print("=" * 15, "LOAD MODEL", "=" * 15)
     model = GPT2LMHeadModel.from_pretrained(MODEL_TYPE)
     tokenizer = PreTrainedTokenizerFast.from_pretrained(MODEL_TYPE)
 
     print("=" * 15, "GET DATASET", "=" * 15)
-    dataset = ServiceConversationDataset(DATA_PATH, tokenizer, MAX_SEQ_LEN)
-    data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    data_loader = get_data_loader(DATA_PATH, tokenizer, BATCH_SIZE, True)
 
-    print("=" * 15, "MODEL ATTACH", "=" * 15)
-    model = model.to(DEVICE)
-
-    model.train()
     optimizier = AdamW(model.parameters(), lr=LEARNING_RATE)
     scheduler = get_linear_schedule_with_warmup(optimizier, WARMUP_STEPS, len(data_loader) - WARMUP_STEPS, -1)
 
     if not os.path.exists(OUTPUT_MODEL_PATH):
         os.mkdir(OUTPUT_MODEL_PATH)
 
-    print("=" * 15, "TRAIN MODEL", "=" * 15)
-    for epoch in range(EPOCHS):
-        print(f'EPOCH : {epoch}, started' + "=" * 30)
-        total_loss = 0.0
-        total_count = 0
-        with tqdm(data_loader, desc="Train Epoch #{}".format(epoch)) as t:
-            for idx, train_ids in enumerate(t):
-                train_ids = train_ids.to(DEVICE)
-                outputs = model(train_ids, labels=train_ids)
-                loss = outputs[0]
-
-                total_loss += loss.detach().data
-                total_count += 1
-                t.set_postfix(loss='{:.6f}'.format(total_loss / total_count))
-                optimizier.zero_grad()
-                scheduler.optimizer.zero_grad()
-                loss.backward()
-                optimizier.step()
-                scheduler.step()
-
-                if idx % 5000 == 1:
-                    torch.save(model.state_dict(), os.path.join(OUTPUT_MODEL_PATH, f"KoGPT2_KoDialog_{epoch}_{idx}.pt"))
-            torch.save(model.state_dict(), os.path.join(OUTPUT_MODEL_PATH, f"KoGPT2_KoDialog_{epoch}.pt"))
+    fine_tuning_runner(model, optimizier, data_loader, scheduler, EPOCHS, OUTPUT_MODEL_PATH)
 
 
 def main():
@@ -89,18 +106,16 @@ def main():
                         help="Save fine-tuned Model path")
     parser.add_argument('--data_path', required=True,
                         help="Setting your data_path for fine-tuning KoGPT-2")
-    parser.add_argument('--batch_size', default=8,
+    parser.add_argument('--batch_size', default=8, type=int,
                         help="The number of data belonging to per iter (default:4)")
-    parser.add_argument('--epochs', default=3,
+    parser.add_argument('--epochs', default=3, type=int,
                         help="The number of train epochs (default:3")
-    parser.add_argument('--lr', default=3e-5,
+    parser.add_argument('--lr', default=3e-5, type=float,
                         help="learning rate range lr < 1")
-    parser.add_argument('--warm_up', default=100,
+    parser.add_argument('--warm_up', default=100, type=int,
                         help="Setting Warm_up steps for scheduler in your data-set")
     parser.add_argument('--base_model', default='taeminlee/kogpt2',
                         help="pretrained KoGPT-2 model path in Huggingface")
-    parser.add_argument('--max_length', default=100,
-                        help="Setting max_sequence length in encoded tensor length")
 
     args = parser.parse_args()
 
@@ -108,14 +123,12 @@ def main():
     EPOCHS = args.epochs
     LEARNING_RATE = args.lr
     WARMUP_STEPS = args.warm_up
-    MAX_SEQ_LEN = args.max_length
     DATA_PATH = args.data_path
     MODEL_TYPE = args.base_model
     OUTPUT_FOLDER = args.model_save_path
 
-    fine_tuning(MODEL_TYPE=MODEL_TYPE, DATA_PATH=DATA_PATH, MAX_SEQ_LEN=MAX_SEQ_LEN, BATCH_SIZE=BATCH_SIZE,
+    fine_tuning(MODEL_TYPE=MODEL_TYPE, DATA_PATH=DATA_PATH, BATCH_SIZE=BATCH_SIZE,
                 LEARNING_RATE=LEARNING_RATE, WARMUP_STEPS=WARMUP_STEPS, OUTPUT_MODEL_PATH=OUTPUT_FOLDER, EPOCHS=EPOCHS)
-
 
 
 if __name__=="__main__":

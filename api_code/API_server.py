@@ -53,13 +53,13 @@ class OriginalShortPost(Resource):
       'description':"INPUT YOUR TEXT"
    }
 })
-class QnAShort(Resource):
+class SimpleQnA(Resource):
    def post(self):
       parser = reqparse.RequestParser()
       parser.add_argument('input_text', type=str)
       args = parser.parse_args()
       ret = {'max_length':200, "input_text":args['input_text']}
-      data = API_models.generate_answer_getter(ret)
+      data = API_models.generate_simple_getter(ret)
       return data
 
 
@@ -69,21 +69,21 @@ class QnAShort(Resource):
       'description':"INPUT YOUR TEXT"
    }
 })
-class ServiceShort(Resource):
+class ChatBot(Resource):
    def post(self):
       parser = reqparse.RequestParser()
       parser.add_argument('input_text', type=str)
       args = parser.parse_args()
       ret = {'max_length':200, "input_text":args['input_text']}
-      data = API_models.generate_answer_getter(ret)
+      data = API_models.generate_bot_answer_getter(ret)
       return data
 
 
 
 api.add_resource(OriginalLongPost, '/Original/long')
 api.add_resource(OriginalShortPost, '/Original/short')
-api.add_resource(QnAShort, '/QnA')
-api.add_resource(ServiceShort, '/Chatbot')
+api.add_resource(SimpleQnA, '/QnA')
+api.add_resource(ChatBot, '/Chatbot')
 
 
 

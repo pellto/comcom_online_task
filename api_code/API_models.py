@@ -4,8 +4,8 @@ from transformers import GPT2LMHeadModel, PreTrainedTokenizerFast
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-QnA_Chatbot_Path = "./models/KoGPT2_QnAChatbot.pt"
-Simple_QnA_Path = "./models/KoGPT2_SimpleQnA.pt"
+Chatbot_Path = "./models/Kodialog_Chatbot.pt"
+Simple_QnA_Path = "./models/Kodialog_SimpleQnA.pt"
 
 MODEL = GPT2LMHeadModel.from_pretrained("taeminlee/kogpt2")
 TOKENIZER = PreTrainedTokenizerFast.from_pretrained("taeminlee/kogpt2")
@@ -13,8 +13,8 @@ TOKENIZER = PreTrainedTokenizerFast.from_pretrained("taeminlee/kogpt2")
 Simple_QnA_Model = GPT2LMHeadModel.from_pretrained("taeminlee/kogpt2")
 Simple_QnA_Model.load_state_dict(torch.load(Simple_QnA_Path, map_location=torch.device(DEVICE)))
 
-QnA_Chatbot_Model = GPT2LMHeadModel.from_pretrained("taeminlee/kogpt2")
-QnA_Chatbot_Model.load_state_dict(torch.load(QnA_Chatbot_Path, map_location=torch.device(DEVICE)))
+Chatbot_Model = GPT2LMHeadModel.from_pretrained("taeminlee/kogpt2")
+Chatbot_Model.load_state_dict(torch.load(Chatbot_Path, map_location=torch.device(DEVICE)))
 
 
 def __str2tensor__(input_text):
@@ -24,32 +24,35 @@ def __str2tensor__(input_text):
 def generate_sentence_getter(args):
     data = __str2tensor__(args['input_text'])
     params = {"max_length":args['max_length'],
-    "early_stopping":False,
-    "top_k":50,
-    "top_p":0.92}
+    "early_stopping":True,
+    "top_k":100,
+    "top_p":0.92,
+    "repetition_penalty":1.1}
     if args == "":
         return TOKENIZER.decode(MODEL.generate(data)[0], skip_special_tokens=True)
     return TOKENIZER.decode(MODEL.generate(data, **params)[0], skip_special_tokens=True)
 
 
-def generate_answer_getter(args=""):
+def generate_simple_getter(args=""):
     data = __str2tensor__(args['input_text'])
-    params = {"max_length":args['max_length'],
-    "early_stopping":False,
-    "top_k":50,
-    "top_p":0.92}
+    params = {"max_length": args['max_length'],
+              "early_stopping": True,
+              "top_k": 100,
+              "top_p": 0.92,
+              "repetition_penalty": 1.1}
     if args == "":
         return TOKENIZER.decode(Simple_QnA_Model.generate(data)[0], skip_special_tokens=True)
-    return TOKENIZER.decode(Simple_QnA_Model.generate(data, **params)[0])
+    return TOKENIZER.decode(Simple_QnA_Model.generate(data, **params)[0], skip_special_tokens=True)
 
 
-def generate_service_getter(args=""):
+def generate_bot_answer_getter(args=""):
     data = __str2tensor__(args['input_text'])
-    params = {"max_length":args['max_length'],
-    "early_stopping":False,
-    "top_k":50,
-    "top_p":0.92}
+    params = {"max_length": args['max_length'],
+              "early_stopping": True,
+              "top_k": 100,
+              "top_p": 0.92,
+              "repetition_penalty": 1.1}
     if args == "":
-        return TOKENIZER.decode(QnA_Chatbot_Model.generate(data)[0], skip_special_tokens=True)
-    return TOKENIZER.decode(QnA_Chatbot_Model.generate(data, **params)[0])
+        return TOKENIZER.decode(Chatbot_Model.generate(data)[0], skip_special_tokens=True)
+    return TOKENIZER.decode(Chatbot_Model.generate(data, **params)[0], skip_special_tokens=True)
 
