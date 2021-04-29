@@ -9,7 +9,7 @@
 
 2. move directory
 ```bash
-mv api_code
+cd api_code
 ```
 
 3. docker Build
@@ -30,16 +30,22 @@ docker run -d -p 5001:5001 --name api-server api-server
   - parameter :
     - input_text : input_text for generate long Sentence
 <br>
+
+
 - /Original/short
   - Use Original KoGPT-2 generater
   - parameter :
     - input_text : input_text for generate short Sentence
 <br>
+
+
 - /QnA
   - Use Fine-Tuned KoGPT-2 generater with [simple QnA Dataset](https://github.com/songys/Chatbot_data)
   - parameter :
     - input_text : Simple Question
 <br>
+
+
 - /Chatbot
   - Use Fine-Tuned KoGPT-2 generater with [Korean Dialog Data](https://aihub.or.kr/aidata/85)
   - parameter :
