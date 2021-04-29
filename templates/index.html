@@ -33,15 +33,10 @@
 <form method="GET" action="/KoGPT2_demo">
 <h1> Original KoGPT-2 </h1><br>
 입력 문장 : 해당 문장을 기반으로 생성됩니다.<br>
-학습 모드 : do_sample 을 활성화 할지 정해주세요. (True or False)<br>
 문장 길이 : 출력 문장 길이를 정합니다 (long or short)<br><br>
     <div>
         <label for="input_text"> 입력 문장 </label>
         <input type="text" name="input_text">
-    </div>
-    <div>
-        <label for="_type"> 학습 모드 </label>
-        <input type="text" name="_type">
     </div>
     <div>
         <label for="length"> 문장 길이 </label>
@@ -54,15 +49,10 @@
 <br>
 <form method="GET" action="/QnAService">
 <h1> Simple QnA Service </h1><br>
-입력 문장 : 해당 문장을 기반으로 생성됩니다.<br>
-출력 문장 길이 : 출력 문장 길이를 정합니다 (long or short)<br><br>
+입력 문장 : 해당 문장을 기반으로 생성됩니다.<br><br>
     <div>
         <label for="question"> Question </label>
         <input type="text" name="question">
-    </div>
-    <div>
-        <label for="_type"> 출력 문장 길이 </label>
-        <input type="text" name="_type">
     </div>
     <div class='button'>
         <button type="submit"> Run </button>
@@ -71,15 +61,10 @@
 <br>
 <form method="GET" action="/QnAChatbot">
     <h1>QnA ChatBot Service</h1>
-    입력 : 해당 문장을 기반으로 생성됩니다.<br>
-    출력 : 출력 문장 길이 조건을 정합니다 (long or short)<br><br>
+    입력 : 해당 문장을 기반으로 생성됩니다.<br><br>
     <div>
         <label for="user_input"> 입력 </label>
         <input type="text" name="user_input">
-    </div>
-    <div>
-        <label for="bot_answer"> 출력 </label>
-        <input type="text" name="bot_answer">
     </div>
     <div class='button'>
         <button type="submit">입력 하기</button>

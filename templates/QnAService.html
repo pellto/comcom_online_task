@@ -32,7 +32,7 @@
 <h1> KoGPT2 Project </h1><br>
 <div>
     <p>
-        입력 문장 : {{question}} | 학습 모드 : {{_type}}
+        입력 문장 : {{question}}
     </p>
     <p>
         Question : {{question}} <br>
@@ -41,15 +41,10 @@
 </div>
 <form method="GET" action="/QnAService">
 <h1> Simple QnA Service </h1><br>
-입력 문장 : 해당 문장을 기반으로 생성됩니다.<br>
-출력 문장 길이 : 출력 문장 길이를 정합니다 (long or short)<br><br>
+입력 문장 : 해당 문장을 기반으로 생성됩니다.<br><br>
     <div>
         <label for="question"> Question </label>
         <input type="text" name="question">
-    </div>
-    <div>
-        <label for="_type"> 출력 문장 길이 </label>
-        <input type="text" name="_type">
     </div>
     <div class='button'>
         <button type="submit"> Run </button>
