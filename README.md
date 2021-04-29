@@ -16,7 +16,7 @@
 ### 1. Build API-server
   1. move directory
   ```bash
-  cd api-code
+  cd api_code
   ```
 
   2. API-server Build with Docker
@@ -28,6 +28,7 @@
   ```bash
   docker run -d -p 5001:5001 --name my-api my-api-server
   ```
+  and then wait about a minute (Downloading huggingface model)
 
   4. check API-server with browser
   http://127.0.0.1:5001/hello

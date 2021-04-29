@@ -22,6 +22,8 @@ docker build -t my-api-server .
 docker run -d -p 5001:5001 --name my-api my-api-server
 ```
 
+5. Then wait about a minute (Downloading huggingface model)
+
 ## with browser
 1. [open browser](http://127.0.0.1:5001)
 
