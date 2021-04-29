@@ -14,12 +14,12 @@ cd api_code
 
 3. docker Build
 ```bash
-docker build -server -t api-server .
+docker build -t my-api-server .
 ```
 
 4. run docker container
 ```bash
-docker run -d -p 5001:5001 --name api-server api-server
+docker run -d -p 5001:5001 --name my-api my-api-server
 ```
 
 ## with browser
