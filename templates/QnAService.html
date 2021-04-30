@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>pellto</title>
     <style>
         form {
-            margin: 0 auto;
             width: 400px;
             padding: 1em;
             border: 1px solid #CCC;
@@ -29,22 +28,19 @@
     </style>
 </head>
 <body>
-<h1> KoGPT2 Project </h1><br>
-<div>
-    <p>
-        입력 문장 : {{question}}
-    </p>
-    <p>
-        Question : {{question}} <br>
-        Answer : {{result}}
-    </p>
-</div>
 <form method="GET" action="/QnAService">
-<h1> Simple QnA Service </h1><br>
-입력 문장 : 해당 문장을 기반으로 생성됩니다.<br><br>
+<h1> Simple QnA Service </h1>
+질문을 입력해 주세요.<br><br>
     <div>
-        <label for="question"> Question </label>
+        <label for="question"> Question : </label>
         <input type="text" name="question">
+    </div>
+    <br>
+    <div>
+        <p>
+            Your Question : {{question}} <br><br>
+            Answer : {{result}}
+        </p>
     </div>
     <div class='button'>
         <button type="submit"> Run </button>

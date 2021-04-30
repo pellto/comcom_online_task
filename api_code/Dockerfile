@@ -1,5 +1,5 @@
-FROM    pellto/kodialogqnachatbot-api
+FROM    pellto/serviceqna
 
 WORKDIR /workspace
 
-CMD     ["python3", "flask_practice.py"]
+CMD     ["python3", "api_main.py"]
