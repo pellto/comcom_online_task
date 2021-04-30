@@ -6,10 +6,11 @@
 2. [My API Server](#My-API-Server)
 3. [with Docker front and Docker API Server](#with-Docker-front-and-Docker-API-Server)
 4. [with Docker front and My API Server](#with-Docker-front-and-My-API-Server)
+5. [Fine Tune](#Fine-Tune)
 
 
 ## Demo
-[Demo-Site](http://203.246.112.132:25000)
+### *[Demo-Site](http://203.246.112.132:25000)*
 
 ![image](https://user-images.githubusercontent.com/77001102/116668685-a1f2b500-a9d8-11eb-8cb5-474ed721fe72.png)
 
@@ -106,3 +107,7 @@ docker run -d -p 5000:5000 comcom:latest
 5. Enter with Browser
 
 http://localhost:5000
+
+
+## Fine Tune
+### *[Details Fine-Tune](https://github.com/pellto/comcom_online_task/blob/master/notebooks/Simple_QnA_Service_FineTuning.ipynb)*
