@@ -75,10 +75,7 @@ def fine_tuning_runner(model, optim, data_loader, scheduler, epochs, save_path):
                 optim.step()
                 scheduler.step()
 
-                if total_count % (len(data_loader) // 4) == 1:
-                    torch.save(model.state_dict(), os.path.join(save_path,
-                                                                f"Chatbot_KoDialog_{epoch}_{total_count}.pt"))
-            torch.save(model.state_dict(), os.path.join(save_path, f"Chatbot_KoDialog_{epoch}.pt"))
+        model.save_pretrained(os.path.join(save_path, f"epoch_{epoch}"))
 
 
 def fine_tuning(MODEL_TYPE, DATA_PATH, BATCH_SIZE,
@@ -97,6 +94,7 @@ def fine_tuning(MODEL_TYPE, DATA_PATH, BATCH_SIZE,
         os.mkdir(OUTPUT_MODEL_PATH)
 
     fine_tuning_runner(model, optimizier, data_loader, scheduler, EPOCHS, OUTPUT_MODEL_PATH)
+    model.save_pretrained(OUTPUT_MODEL_PATH)
 
 
 def main():
