@@ -2,7 +2,7 @@
 커먼컴퓨터 지원 온라인 과제
 
 
-# Pellto's KoDialog API
+# Pellto's QnA API
 
 ## 사용법
 1. [해당 레포지토리](https://github.com/pellto/comcom_online_task)를 다운로드 한 후 압축을 풀어 주세요.
@@ -12,43 +12,30 @@
 cd api_code
 ```
 
-3. docker Build
+3. API-server Build with Docker
 ```bash
-docker build -t my-api-server .
+docker build -t my-api-server:latest .
 ```
 
-4. run docker container
+4. run api server with docker
 ```bash
-docker run -d -p 5001:5001 --name my-api my-api-server
+docker run -d -p 5001:5001 --name my-api my-api-server:latest
+```
+and then wait about a minute (Downloading huggingface model)
+
+5. Check Docker container running
+```
+docker ps
 ```
 
-5. Then wait about a minute (Downloading huggingface model)
-
-## with browser
-1. [open browser](http://127.0.0.1:5001)
-
-- /Original/long
-  - Use Original KoGPT-2 generater
-  - parameter :
-    - input_text : input_text for generate long Sentence
-<br>
-
-
-- /Original/short
-  - Use Original KoGPT-2 generater
-  - parameter :
-    - input_text : input_text for generate short Sentence
-<br>
-
-
+## API Parameter
 - /QnA
+  - post API
   - Use Fine-Tuned KoGPT-2 generater with [simple QnA Dataset](https://github.com/songys/Chatbot_data)
   - parameter :
     - input_text : Simple Question
 <br>
 
 
-- /Chatbot
-  - Use Fine-Tuned KoGPT-2 generater with [Korean Dialog Data](https://aihub.or.kr/aidata/85)
-  - parameter :
-    - input_text : Store-related Sentence or Question
+# *with Swagger*
+- [QnA Server](http://203.246.112.132:25001)
