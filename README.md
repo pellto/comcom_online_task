@@ -29,12 +29,12 @@
 
   2. API-server Build with Docker
   ```bash
-  docker build -t my-api-server .
+  docker build -t my-api-server:latest .
   ```
 
   3. run api server with docker
   ```bash
-  docker run -d -p 5001:5001 --name my-api my-api-server
+  docker run -d -p 5001:5001 --name my-api my-api-server:latest
   ```
   and then wait about a minute (Downloading huggingface model)
 
@@ -53,12 +53,12 @@
 
   2. Front-server Build with Docker
   ```bash
-  docker build -t my-front-server .
+  docker build -t my-front-server:latest .
   ```
 
   3. run Front-Server and link API-Server with docker
   ```bash
-  docker run -d -p 5000:5000 --link my-api:api my-front-server
+  docker run -d -p 5000:5000 --link my-api:api my-front-server:latest
   ```
   4. Check Docker container running
   ```
@@ -74,6 +74,7 @@
 ### 사용법
 
 1. Modify POST_URL in main.py
+
 from
 ```python
 POST_URL = f"http://{os.environ['API_PORT_5001_TCP_ADDR']}:5001/QnA"
@@ -85,7 +86,7 @@ POST_URL = f"http://203.246.112.132:5001/QnA"
 
 2. Build Docker
 ```bash
-docker build -t comcom .
+docker build -t comcom:latest .
 ```
 
 3. Check Docker images
@@ -97,7 +98,7 @@ docker images
 
 4. Run Dokcer
 ```bash
-docker dun -d -p 5000:5000 comcom
+docker run -d -p 5000:5000 comcom:latest
 ```
 ![image](https://user-images.githubusercontent.com/77001102/116267498-6c22b600-a7b7-11eb-9a75-b707062aa995.png)
 
