@@ -5,7 +5,7 @@
     <title>pellto</title>
     <style>
         form {
-            width: 400px;
+            width: 800px;
             padding: 1em;
             border: 1px solid #CCC;
             border-radius: 1em;
@@ -30,7 +30,46 @@
 <body>
 <form method="GET" action="/QnAService">
 <h1> Simple QnA Service </h1>
-질문을 입력해 주세요.<br><br>
+    <div style="font-size:15px">
+        본 프로젝트는
+        <a href="https://aihub.or.kr/aidata/85">해당 데이터셋</a>과
+        <a href="https://huggingface.co/taeminlee/kogpt2">허깅페이스의 KoGPT2</a>을
+        이용해 생성된 프로젝트 입니다.<br>
+        해당 데이터 셋은 소상공인 및 공공민원 등 10개분야에 대한 대화 데이터셋입니다.<br>
+        해당 데이터 셋에서 dialog.zip에 있는 A-I 파일을 이용해 데이터 셋을 구성했습니다.<br>
+        사용한 데이터 셋의 발화는 총 79,940번이며, 각 대화마다 3~15번의 문장으로 구성되어있습니다.<br>
+        데이터의 도메인 분야는 음식점, 의류, 학원, 소매점, 생활서비스, 숙박업, 관광여가오락, 부동산으로 구성되어있습니다.<br>
+        <br><br>
+        따라서, 일상적인 대화보다는 해당 도메인 분야에서 나올 수 있는 질문들에 대해 성능이 좋습니다.
+        <br>
+        아래는 질문 예시 입니다.
+        <br>
+        <br>============================================================
+        <br>Your Question : 짜장면 배달 되나요?
+        <br>Answer : 네, 배달 됩니다.
+        <br>============================================================
+        <br>Your Question : 딸기잼은 하나의 얼마인가요?
+        <br>Answer : 딸기잼은 삼만 팔천 원이요
+        <br>============================================================
+        <br>Your Question : 현금 영수증도 발행 해주시나요?
+        <br>Answer : 네, 카드 결제도 가능합니다
+        <br>============================================================
+        <br>Your Question : 첫 방문 할인 되나요?
+        <br>Answer : 네, 만 원부터 다 가능합니다
+        <br>============================================================
+        <br>Your Question : 몇 시부터 몇 시까지 영업하시나요?
+        <br>Answer : 10시까지 영업해요
+        <br>============================================================
+        <br>Your Question : 언제부터 입주가 가능한가요?
+        <br>Answer : 3월 2일부터 입주가 가능합니다
+        <br>============================================================
+        <br><br><br>
+        아래는 실제 실행이 가능한 데모 프로그램입니다.
+        <br>
+    </div>
+<div>
+<br>=========================================================
+    <br>질문을 입력해 주세요.<br><br>
     <div>
         <label for="question"> Question : </label>
         <input type="text" name="question">
@@ -45,6 +84,7 @@
     <div class='button'>
         <button type="submit"> Run </button>
     </div>
+</div>
 </form>
 <br>
 </body>
